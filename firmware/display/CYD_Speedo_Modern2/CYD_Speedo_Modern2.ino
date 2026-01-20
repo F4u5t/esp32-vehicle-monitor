@@ -15,14 +15,25 @@
 #include <WiFi.h>
 #include <XPT2046_Touchscreen_TT.h>
 #include <esp_now.h>
+#include <esp_wifi.h>
 
-// ESP-NOW Data Structure (must match sender)
-typedef struct {
-  uint8_t protocolVersion;
-  float headTemp;
-  float oilTemp;
-  float oilPressure;
-  uint32_t timestamp;
+// ESP-NOW Data Structure (must match sender's TempDataPacket)
+typedef struct __attribute__((packed)) {
+  uint8_t version;     // Protocol version
+  uint32_t timestamp;  // Milliseconds since boot
+  float temperature;   // Head Temperature in Celsius (currently unused)
+  float coldJunction;  // Head Cold junction temperature
+  uint8_t faultStatus; // Head MAX31856 fault register
+
+  float oilTemperature;   // Oil Temperature in Celsius
+  float oilColdJunction;  // Oil Cold junction temperature
+  uint8_t oilFaultStatus; // Oil MAX31856 fault register
+
+  float oilPressure;       // Oil Pressure in PSI
+  uint8_t sensorsStatus;   // Bitmask: Bit 0=Head, 1=Oil Temp, 2=Oil Press
+  uint16_t sequenceNumber; // Packet sequence number
+  uint8_t batteryLevel;    // Battery percentage 0-100
+  uint8_t checksum;        // XOR checksum
 } SensorData;
 
 SensorData receivedData;
@@ -92,8 +103,8 @@ void onDataReceive(const esp_now_recv_info *recv_info, const uint8_t *data,
   if (data_len == sizeof(SensorData)) {
     memcpy(&receivedData, data, sizeof(SensorData));
 
-    // Update current values
-    currentOilTemp = receivedData.oilTemp;
+    // Update current values - use oilTemperature field from sender
+    currentOilTemp = receivedData.oilTemperature;
     currentOilPressure = receivedData.oilPressure;
     lastSensorUpdate = millis();
     sensorDataValid = true;
@@ -125,6 +136,10 @@ void setup() {
   delay(100);
   WiFi.disconnect();
   delay(500);
+  
+  // Set WiFi channel to match sender (channel 1)
+  esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE);
+  Serial.println(">>> WiFi channel set to 1");
 
   Serial.print(">>> MAC Address: ");
   Serial.println(WiFi.macAddress());
@@ -144,7 +159,7 @@ void setup() {
     // Register receive callback
     esp_now_register_recv_cb(onDataReceive);
     Serial.println(">>> ESP-NOW receive callback registered");
-    Serial.println(">>> Waiting for data from sender: 98:A3:16:8E:6A:E4");
+    Serial.println(">>> Waiting for data from sender: 98:A3:16:8E:6A:E4 (ESP32-1)");
   }
   Serial.println();
 
@@ -413,7 +428,9 @@ void drawInfoPanels() {
 
     tft.setTextSize(2);
     tft.setTextColor(COLOR_ACCENT, COLOR_PANEL_BG);
-    String tempStr = String(currentOilTemp, 1) + " F";
+    // Convert Celsius to Fahrenheit for display
+    float tempF = (currentOilTemp * 9.0 / 5.0) + 32.0;
+    String tempStr = String(tempF, 1) + " F";
     tft.drawString(tempStr, PANEL_MARGIN + 10, panelY + 22);
 
     // Oil Pressure - Right side

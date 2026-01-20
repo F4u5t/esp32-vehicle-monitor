@@ -44,9 +44,9 @@ Adafruit_MAX31856 max_oil(MAX31856_CS_PIN); // Oil Temperature
 Adafruit_ADS1115 ads;
 SSD1306Wire display(OLED_ADDR, OLED_SDA_PIN, OLED_SCL_PIN);
 
-// Receiver MAC Address (from config.h)
-// Update this with your RECEIVER's MAC address
-uint8_t receiverMAC[] = {0x98, 0xA3, 0x16, 0x8E, 0x6A, 0xE4};
+// Receiver MAC Address - CYD-1 (the receiver/display)
+// CYD-1 MAC: 08:D1:F9:2A:08:BC
+uint8_t receiverMAC[] = {0x08, 0xD1, 0xF9, 0x2A, 0x08, 0xBC};
 
 // Packet tracking
 uint16_t sequenceNumber = 0;
@@ -170,14 +170,16 @@ bool sendTemperatureData(float oilTemp, float oilCJ, uint8_t oilFault) {
   TempDataPacket packet;
   packet.version = PROTOCOL_VERSION;
   packet.timestamp = millis();
-  packet.temperature = oilTemp;
-  packet.coldJunction = oilCJ;
-  packet.faultStatus = oilFault;
+  
+  // Head temp fields - unused (reserved for future head temp sensor)
+  packet.temperature = 0;
+  packet.coldJunction = 0;
+  packet.faultStatus = 0;
 
-  // Head Temp Removed (now using Oil Temp)
-  packet.oilTemperature = 0;
-  packet.oilColdJunction = 0;
-  packet.oilFaultStatus = 0;
+  // Oil Temperature - main sensor data
+  packet.oilTemperature = oilTemp;
+  packet.oilColdJunction = oilCJ;
+  packet.oilFaultStatus = oilFault;
 
   packet.oilPressure = currentOilPressure;
 

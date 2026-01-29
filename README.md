@@ -1,8 +1,6 @@
 # ESP32 Vehicle Monitor System
 
-
-
-A 3-component wireless vehicle monitoring system combining oil temperature/pressure monitoring with GPS speedometer display. Built with ESP32 microcontrollers using ESP-NOW communication protocol.
+A 4-component wireless vehicle monitoring system for classic vehicles, combining **oil temperature/pressure monitoring**, **fuel tank level**, and **GPS speedometer display**. Built with ESP32 microcontrollers using ESP-NOW communication protocol.
 
 
 
@@ -16,33 +14,38 @@ This project monitors critical engine parameters and displays them on a dashboar
 
 ### Components
 
-
-
-1. **ESP32C6 Sender** (Engine Bay)
-
+1. **Oil Sender** (Engine Bay) - XIAO ESP32C6
    - Monitors oil temperature via K-type thermocouple (MAX31856)
-
    - Monitors oil pressure via 0-100 PSI sensor (ADS1115 ADC)
-
    - Local OLED display for engine-side viewing
+   - Transmits TempDataPacket (Protocol v3) at 1 Hz via ESP-NOW
+   - See: [firmware/sender-oil/README.md](firmware/sender-oil/README.md)
 
-   - Transmits data wirelessly via ESP-NOW to dashboard
+2. **Fuel Sender** (Fuel Tank) - XIAO ESP32C6
+   - Monitors fuel tank level via variable resistance sensor (1972 VW spec: 73Ω-10Ω)
+   - Voltage divider ADC circuit for safe measurement
+   - Two-point field calibration via serial menu
+   - Fault detection (open/short circuit, low fuel)
+   - Transmits FuelDataPacket (Protocol v1) at 1 Hz via ESP-NOW
+   - See: [firmware/sender-fuel/README.md](firmware/sender-fuel/README.md)
 
-
-
-2. **CYD Display** (Cheap Yellow Display - Dashboard)
+3. **CYD Display** (Cheap Yellow Display - Dashboard)
 
    - ESP32 with 320x240 TFT touchscreen
 
-   - Receives oil temp/pressure data via ESP-NOW from sender
+   - Receives oil sensor data (temperature + pressure) via ESP-NOW
+
+   - Receives fuel tank level via ESP-NOW
 
    - Receives GPS data via serial from laptop
 
-   - Modern dashboard UI with color-coded warnings
+   - Modern dashboard UI displaying all data simultaneously
+
+   - Color-coded warnings for oil pressure, fuel level, and temperature
 
 
 
-3. **Laptop GPS** (Data Source)
+4. **Laptop GPS** (Data Source)
 
    - Debian 13 Linux system with U-blox GPS dongle
 
@@ -108,6 +111,22 @@ This project monitors critical engine parameters and displays them on a dashboar
 
 
 
+### Fuel Tank Monitoring
+
+- Variable resistance fuel sender (73Ω-10Ω for 1972 VW spec)
+
+- Percentage display calculation with two-point calibration
+
+- Fault detection: open circuit, short circuit, low fuel warnings
+
+- Color-coded fuel level indicator (green >25%, yellow 15-25%, red <15%)
+
+- Field-calibration via serial menu (no reflashing required)
+
+- Exponential smoothing for stable readings
+
+
+
 ### GPS Speedometer
 
 - Real-time GPS speed display
@@ -126,13 +145,15 @@ This project monitors critical engine parameters and displays them on a dashboar
 
 ### Wireless Communication
 
-- ESP-NOW protocol for low-latency oil data transmission
+- ESP-NOW protocol for low-latency data transmission (oil + fuel independent streams)
 
 - Reliable point-to-point communication
 
 - No WiFi network required
 
 - ~50-100m range line-of-sight
+
+- Simultaneous dual transmission at 1 Hz without interference
 
 - Automatic retry with delivery confirmation
 
@@ -142,13 +163,13 @@ This project monitors critical engine parameters and displays them on a dashboar
 
 - Modern dashboard UI with large, readable fonts
 
-- Color-coded warnings (temperature and pressure thresholds)
+- Color-coded warnings (temperature, pressure, and fuel level thresholds)
 
-- Real-time data updates
+- Real-time data updates on 320x240 TFT screen
 
-- Connection status indicators
+- Connection status indicators for both senders
 
-- Fault diagnostics
+- Fault diagnostics and indicators
 
 
 
@@ -156,7 +177,7 @@ This project monitors critical engine parameters and displays them on a dashboar
 
 
 
-### ESP32C6 Sender (Engine Bay)
+### ESP32C6 Oil Sender (Engine Bay)
 
 - Seeed Studio XIAO ESP32C6
 
@@ -175,6 +196,22 @@ This project monitors critical engine parameters and displays them on a dashboar
 - Breadboard or custom PCB
 
 - Wiring and connectors
+
+
+
+### ESP32C6 Fuel Sender (Fuel Tank)
+
+- Seeed Studio XIAO ESP32C6
+
+- Variable resistance fuel sender (matched to vehicle; 1972 VW: 73Ω-10Ω range)
+
+- Voltage divider circuit components: 100Ω resistor, 100nF capacitor
+
+- SSD1306 OLED Display (128x64, I2C) - optional
+
+- Breadboard or custom PCB
+
+- Wiring and connectors for fuel tank mounting
 
 
 
@@ -222,7 +259,7 @@ See [hardware/bill-of-materials.md](hardware/bill-of-materials.md) for complete 
 
 
 
-### 2. Configure Sender
+### 2. Configure Oil Sender
 
 ```cpp
 
@@ -234,11 +271,25 @@ uint8_t receiverMAC[] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
 
 
 
-### 3. Upload Firmware
+### 3. Configure Fuel Sender
+
+```cpp
+
+// Update firmware/sender-fuel/fuel_sender.ino with CYD MAC address
+
+uint8_t receiverMAC[] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
+
+// Calibrate fuel sender using serial menu (run from USB)
+
+```
+
+
+
+### 4. Upload Firmware
 
 ```bash
 
-# Upload firmware to both devices using Arduino IDE
+# Upload firmware to all three devices using Arduino IDE
 
 # Oil Sender: firmware/sender-oil/sender_arduino.ino
 
@@ -250,7 +301,7 @@ uint8_t receiverMAC[] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
 
 
 
-### 4. Configure Laptop GPS
+### 5. Configure Laptop GPS
 
 ```bash
 
@@ -262,11 +313,13 @@ uint8_t receiverMAC[] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
 
 
 
-### 5. Verify Operation
+### 6. Verify Operation
 
-- Check sender serial monitor for "âœ“ Delivery Success"
+- Check oil sender serial monitor for delivery success messages
 
-- Check CYD display for oil temp/pressure readings
+- Check fuel sender serial monitor for delivery success messages
+
+- Check CYD display for oil temp/pressure/fuel readings
 
 - Verify GPS data appears on CYD display
 
@@ -380,13 +433,15 @@ vehicle-monitor/
 
 - **[ESP-NOW Setup](docs/setup/espnow-setup.md)** - Configure wireless communication
 
-- **[Sender Setup](docs/setup/sender-setup.md)** - ESP32C6 sender configuration
+- **[Oil Sender Documentation](firmware/sender-oil/README.md)** - Oil sender firmware and configuration
 
-- **[Display Setup](docs/setup/display-setup.md)** - CYD display configuration
+- **[Fuel Sender Documentation](firmware/sender-fuel/README.md)** - Fuel sender firmware and calibration
 
 - **[Laptop GPS Setup](laptop/README.md)** - Configure GPS data source
 
-- **[Communication Protocol](docs/communication-protocol.md)** - ESP-NOW data structure
+- **[Communication Protocol](docs/communication-protocol.md)** - ESP-NOW protocol (Protocol v3 for oil, Protocol v1 for fuel)
+
+- **[Fuel Receiver Integration](docs/fuel_receiver_integration.md)** - Details on CYD fuel packet reception
 
 - **[Oil Sender Wiring](hardware/sender-oil/wiring.md)** - Oil sender wiring diagrams
 
@@ -394,7 +449,7 @@ vehicle-monitor/
 
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 
-- **[Calibration Guide](docs/calibration.md)** - Sensor calibration procedures
+- **[Fuel Testing & Calibration](docs/fuel_testing_calibration.md)** - Fuel sender calibration procedures
 
 
 
@@ -414,11 +469,11 @@ vehicle-monitor/
 
 | ESP32-2 | Oil Sender | `98:A3:16:8E:66:F0` |
 
-| ESP32-3 | Spare | `98:A3:16:8E:69:B8` |
+| ESP32-3 | Fuel Sender | (Not yet added) |
 
 
 
-See [docs/setup/espnow-setup.md](docs/setup/espnow-setup.md) for instructions on updating MAC addresses.
+See [docs/setup/espnow-setup.md](docs/setup/espnow-setup.md) for instructions on updating MAC addresses for both oil and fuel senders.
 
 
 
@@ -519,6 +574,32 @@ typedef struct __attribute__((packed)) {
   uint8_t checksum;          // XOR checksum
 
 } TempDataPacket;
+
+```
+
+
+
+### ESP-NOW Fuel Data Packet (Protocol v1)
+
+```cpp
+
+typedef struct __attribute__((packed)) {
+
+  uint8_t version;           // Protocol version = 1
+
+  uint16_t raw_resistance;   // Raw sensor resistance (Ohms)
+
+  uint8_t fuel_percent;      // Calculated fuel percentage (0-100)
+
+  uint8_t fault_status;      // Fault flags (open, short, low fuel)
+
+  uint32_t timestamp;        // millis()
+
+  uint16_t sequence;         // Packet counter
+
+  uint8_t checksum;          // XOR checksum
+
+} FuelDataPacket;
 
 ```
 

@@ -17,9 +17,9 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 
-// ESP-NOW Data Structure (must match sender's TempDataPacket)
+// ===== OIL SENDER DATA PACKET (Protocol v3) =====
 typedef struct __attribute__((packed)) {
-  uint8_t version;     // Protocol version
+  uint8_t version;     // Protocol version = 3
   uint32_t timestamp;  // Milliseconds since boot
   float temperature;   // Head Temperature in Celsius (currently unused)
   float coldJunction;  // Head Cold junction temperature
@@ -36,7 +36,25 @@ typedef struct __attribute__((packed)) {
   uint8_t checksum;        // XOR checksum
 } SensorData;
 
+// ===== FUEL SENDER DATA PACKET (Protocol v1) =====
+typedef struct __attribute__((packed)) {
+  uint8_t version;           // Protocol version = 1
+  uint16_t raw_resistance;   // Fuel sender resistance in 0.01 Ohm units
+  uint8_t fuel_percent;      // Calculated fuel percentage (0-100%)
+  uint8_t fault_status;      // Fault flags
+  uint32_t timestamp;        // Milliseconds since boot
+  uint16_t sequence_number;  // Packet counter
+  uint8_t checksum;          // XOR checksum
+} FuelDataPacket;
+
+// Fault status flags
+#define FUEL_FAULT_NONE 0x00
+#define FUEL_FAULT_OPEN_CIRCUIT 0x01
+#define FUEL_FAULT_SHORT_CIRCUIT 0x02
+#define FUEL_FAULT_LOW_FUEL 0x04
+
 SensorData receivedData;
+FuelDataPacket fuelData;
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -56,11 +74,19 @@ String currentLon = "--";
 String currentAlt = "--";
 float currentHeading = 0.0;
 
-// ESP-NOW Sensor data
+// ESP-NOW Sensor data - Oil Sender
 float currentOilTemp = 0.0;
 float currentOilPressure = 0.0;
-unsigned long lastSensorUpdate = 0;
-bool sensorDataValid = false;
+unsigned long lastOilUpdate = 0;
+bool oilDataValid = false;
+
+// ESP-NOW Sensor data - Fuel Sender
+uint8_t currentFuelPercent = 0;
+uint8_t fuelFaultStatus = 0;
+unsigned long lastFuelUpdate = 0;
+bool fuelDataValid = false;
+
+#define DATA_TIMEOUT_MS 5000  // Mark data as stale if no update for 5 seconds
 
 // Previous values
 float prevSpeed = -1.0;
@@ -72,6 +98,7 @@ String prevAlt = "";
 float prevHeading = -1.0;
 float prevOilTemp = -999.0;
 float prevOilPressure = -999.0;
+uint8_t prevFuelPercent = 255;
 
 unsigned long lastUpdate = 0;
 bool firstDraw = true;
@@ -98,29 +125,66 @@ bool firstDraw = true;
 #define PANEL_MARGIN 5
 
 // ESP-NOW Receive Callback (ESP32 Arduino Core 3.x)
+// Handles both oil sender (v3) and fuel sender (v1) packets
 void onDataReceive(const esp_now_recv_info *recv_info, const uint8_t *data,
                    int data_len) {
-  if (data_len == sizeof(SensorData)) {
+  if (data_len < 1) return;  // Minimum: version byte
+  
+  uint8_t packet_version = data[0];
+  
+  // ===== OIL SENDER PACKET (TempDataPacket, v3) =====
+  if (packet_version == 3 && data_len == sizeof(SensorData)) {
     memcpy(&receivedData, data, sizeof(SensorData));
 
-    // Update current values - use oilTemperature field from sender
+    // Update current values
     currentOilTemp = receivedData.oilTemperature;
     currentOilPressure = receivedData.oilPressure;
-    lastSensorUpdate = millis();
-    sensorDataValid = true;
+    lastOilUpdate = millis();
+    oilDataValid = true;
 
     // Debug output
-    Serial.print("ESP-NOW Received from: ");
+    Serial.print("[OIL] ESP-NOW from: ");
     for (int i = 0; i < 6; i++) {
       Serial.printf("%02X", recv_info->src_addr[i]);
-      if (i < 5)
-        Serial.print(":");
+      if (i < 5) Serial.print(":");
     }
     Serial.print(" - Oil Temp: ");
     Serial.print(currentOilTemp);
-    Serial.print("°F, Oil Pressure: ");
+    Serial.print("C, Oil Pressure: ");
     Serial.print(currentOilPressure);
     Serial.println(" PSI");
+  }
+  
+  // ===== FUEL SENDER PACKET (FuelDataPacket, v1) =====
+  else if (packet_version == 1 && data_len == sizeof(FuelDataPacket)) {
+    memcpy(&fuelData, data, sizeof(FuelDataPacket));
+
+    // Update current values
+    currentFuelPercent = fuelData.fuel_percent;
+    fuelFaultStatus = fuelData.fault_status;
+    lastFuelUpdate = millis();
+    fuelDataValid = true;
+
+    // Debug output
+    Serial.print("[FUEL] ESP-NOW from: ");
+    for (int i = 0; i < 6; i++) {
+      Serial.printf("%02X", recv_info->src_addr[i]);
+      if (i < 5) Serial.print(":");
+    }
+    Serial.print(" - Fuel: ");
+    Serial.print(currentFuelPercent);
+    Serial.print("%, Resistance: ");
+    Serial.print(fuelData.raw_resistance / 100.0, 1);
+    Serial.print(" Ohm, Faults: 0x");
+    Serial.println(fuelFaultStatus, HEX);
+  }
+  
+  // Unknown packet type
+  else {
+    Serial.print("[UNKNOWN] Packet version=0x");
+    Serial.print(packet_version, HEX);
+    Serial.print(" size=");
+    Serial.println(data_len);
   }
 }
 
@@ -309,9 +373,20 @@ void updateScreen() {
   }
 
   // Check if sensor data is stale (no update in 5 seconds)
-  if (sensorDataValid && (millis() - lastSensorUpdate > 5000)) {
-    sensorDataValid = false;
+  if (oilDataValid && (millis() - lastOilUpdate > DATA_TIMEOUT_MS)) {
+    oilDataValid = false;
     drawInfoPanels(); // Redraw to show "No Data"
+  }
+  
+  if (fuelDataValid && (millis() - lastFuelUpdate > DATA_TIMEOUT_MS)) {
+    fuelDataValid = false;
+    drawInfoPanels(); // Redraw to show "No Data"
+  }
+  
+  // Check if fuel percent changed
+  if (currentFuelPercent != prevFuelPercent) {
+    drawInfoPanels();
+    prevFuelPercent = currentFuelPercent;
   }
 }
 
@@ -411,7 +486,7 @@ void drawInfoPanels() {
   // Draw compass visualization
   drawMiniCompass(rightPanelX + panelW - 35, panelY + 30, 18, currentHeading);
 
-  // Bottom panel - Oil Temp and Oil Pressure
+  // Bottom panel - Oil Temp, Oil Pressure, and Fuel Level
   panelY = INFO_PANEL_Y + panelH + PANEL_MARGIN;
   panelH = 240 - panelY - PANEL_MARGIN;
   tft.fillRoundRect(PANEL_MARGIN, panelY, 320 - PANEL_MARGIN * 2, panelH, 6,
@@ -421,7 +496,7 @@ void drawInfoPanels() {
   tft.setTextSize(1);
   tft.setFreeFont(NULL);
 
-  if (sensorDataValid) {
+  if (oilDataValid) {
     // Oil Temperature - Left side
     tft.setTextColor(COLOR_TEXT_SECONDARY, COLOR_PANEL_BG);
     tft.drawString("OIL TEMP", PANEL_MARGIN + 10, panelY + 8);
@@ -433,10 +508,10 @@ void drawInfoPanels() {
     String tempStr = String(tempF, 1) + " F";
     tft.drawString(tempStr, PANEL_MARGIN + 10, panelY + 22);
 
-    // Oil Pressure - Right side
+    // Oil Pressure - Middle
     tft.setTextSize(1);
     tft.setTextColor(COLOR_TEXT_SECONDARY, COLOR_PANEL_BG);
-    tft.drawString("OIL PRESSURE", 170, panelY + 8);
+    tft.drawString("OIL PRESSURE", 120, panelY + 8);
 
     tft.setTextSize(2);
     // Color code pressure (warning if < 10 PSI, good if >= 10)
@@ -444,12 +519,43 @@ void drawInfoPanels() {
         currentOilPressure >= 10.0 ? COLOR_GOOD : COLOR_WARNING;
     tft.setTextColor(pressureColor, COLOR_PANEL_BG);
     String pressureStr = String(currentOilPressure, 1) + " PSI";
-    tft.drawString(pressureStr, 170, panelY + 22);
+    tft.drawString(pressureStr, 120, panelY + 22);
   } else {
-    // No sensor data
-    tft.setTextDatum(TC_DATUM);
+    // No oil data
+    tft.setTextSize(1);
     tft.setTextColor(COLOR_TEXT_SECONDARY, COLOR_PANEL_BG);
-    tft.drawString("WAITING FOR SENSOR DATA...", 160, panelY + 15);
+    tft.drawString("OIL: No Data", PANEL_MARGIN + 10, panelY + 8);
+  }
+  
+  // Fuel Level - Right side
+  if (fuelDataValid) {
+    tft.setTextSize(1);
+    tft.setTextColor(COLOR_TEXT_SECONDARY, COLOR_PANEL_BG);
+    tft.drawString("FUEL", 220, panelY + 8);
+
+    tft.setTextSize(2);
+    // Color code fuel level (red if low < 15%, yellow if < 25%, green otherwise)
+    uint16_t fuelColor = COLOR_GOOD;
+    if (currentFuelPercent < 15) {
+      fuelColor = COLOR_BAD;  // Red
+    } else if (currentFuelPercent < 25) {
+      fuelColor = COLOR_WARNING;  // Yellow
+    }
+    tft.setTextColor(fuelColor, COLOR_PANEL_BG);
+    String fuelStr = String(currentFuelPercent) + "%";
+    tft.drawString(fuelStr, 220, panelY + 22);
+    
+    // Fuel fault indicator
+    if (fuelFaultStatus & ~FUEL_FAULT_NONE) {
+      tft.setTextSize(1);
+      tft.setTextColor(COLOR_BAD, COLOR_PANEL_BG);
+      tft.drawString("FAULT!", 220, panelY + 38);
+    }
+  } else {
+    // No fuel data
+    tft.setTextSize(1);
+    tft.setTextColor(COLOR_TEXT_SECONDARY, COLOR_PANEL_BG);
+    tft.drawString("FUEL: No Data", 220, panelY + 8);
   }
 }
 

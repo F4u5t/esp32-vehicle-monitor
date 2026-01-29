@@ -234,7 +234,7 @@ After assembly, calibrate the fuel sender:
 
 **Accuracy:** ±2% with two-point calibration
 
-See [../../firmware/sender/fuel_sender/README.md](../../firmware/sender/fuel_sender/README.md#calibration-procedure) for detailed calibration steps.
+See [../../firmware/sender-fuel/README.md](../../firmware/sender-fuel/README.md#calibration-procedure) for detailed calibration steps.
 
 ## Troubleshooting
 
@@ -289,7 +289,7 @@ For non-linear fuel gauges:
 
 ## References
 
-- [Firmware Documentation](../../firmware/sender/fuel_sender/README.md)
+- [Firmware Documentation](../../firmware/sender-fuel/README.md)
 - [CYD Display Integration](../../docs/fuel_receiver_integration.md)
 - [Complete Wiring Guide](wiring.md)
 - [Testing & Calibration Procedures](../../docs/fuel_testing_calibration.md)

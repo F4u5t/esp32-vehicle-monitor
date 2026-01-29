@@ -13,14 +13,22 @@ SuperDashv7/
 ├── .gitignore                     # ✅ Comprehensive ignore rules
 │
 ├── firmware/                      # ✅ All firmware organized here
-│   ├── sender/                    # ESP32C6 sender code (from ESP_Oil_Data/sender_arduino/)
-│   │   ├── README.md             # Detailed sender documentation
+│   ├── sender-oil/                # ESP32C6 oil sender code (from ESP_Oil_Data/sender_arduino/)
+│   │   ├── README.md             # Detailed oil sender documentation
+│   │   ├── SENDERS_OVERVIEW.md   # Dual-sender architecture guide
 │   │   ├── sender_arduino.ino
 │   │   ├── config.h
 │   │   ├── data_packet.h
 │   │   ├── console_menu.cpp/h
 │   │   ├── settings.cpp/h
 │   │   └── ads1115_config.h
+│   │
+│   ├── sender-fuel/               # ESP32C6 fuel sender code
+│   │   ├── README.md             # Detailed fuel sender documentation
+│   │   ├── fuel_sender.ino
+│   │   ├── fuel_config.h
+│   │   ├── fuel_data_packet.h
+│   │   └── fuel_calibration.cpp
 │   │
 │   └── display/                   # CYD display code (from ESP_CYD_1/)
 │       ├── README.md             # Detailed display documentation
@@ -30,9 +38,12 @@ SuperDashv7/
 │
 ├── hardware/                      # ✅ Hardware documentation
 │   ├── bill-of-materials.md      # Complete BOM with pricing
-│   ├── sender/
-│   │   ├── wiring.md             # From ESP_Oil_Data/docs/
+│   ├── sender-oil/
+│   │   ├── wiring.md             # Oil sender wiring diagram
 │   │   └── wiring-diagram.png
+│   ├── sender-fuel/
+│   │   ├── README.md             # Fuel sender hardware guide
+│   │   └── wiring.md             # Fuel sender wiring diagram
 │   └── display/
 │       └── (CYD info - add if needed)
 │
@@ -61,7 +72,8 @@ SuperDashv7/
 - `MIGRATION_GUIDE.md` - This file
 
 **Documentation:**
-- `firmware/sender/README.md` - Complete sender documentation
+- `firmware/sender-oil/README.md` - Complete oil sender documentation
+- `firmware/sender-fuel/README.md` - Complete fuel sender documentation
 - `firmware/display/README.md` - Complete display documentation
 - `hardware/bill-of-materials.md` - Full BOM with links and pricing
 - `laptop/README.md` - GPS setup guide with Python scripts
@@ -211,7 +223,7 @@ ESP_CYD_1/ (if you want to exclude old structure)
 
 **Sender:**
 ```
-File → Open → firmware/sender/sender_arduino.ino
+File → Open → firmware/sender-oil/sender_arduino.ino
 ```
 
 **Display:**
@@ -228,10 +240,12 @@ File → Open → firmware/display/Get_MAC_Address.ino
 
 All documentation is now in organized folders:
 - **Quick Start:** docs/setup/getting-started.md
-- **Sender Details:** firmware/sender/README.md
+- **Sender Details:** firmware/sender-oil/README.md
+- **Fuel Details:** firmware/sender-fuel/README.md
 - **Display Details:** firmware/display/README.md
 - **GPS Setup:** laptop/README.md
-- **Hardware:** hardware/sender/wiring.md
+- **Hardware:** hardware/sender-oil/wiring.md (oil sender)
+- **Hardware:** hardware/sender-fuel/wiring.md (fuel sender)
 - **BOM:** hardware/bill-of-materials.md
 
 ---
@@ -247,9 +261,10 @@ ESP_Oil_Data/docs/wiring.md                      ← Read this
 
 ### After (New Structure):
 ```
-firmware/sender/sender_arduino.ino               ← Open this
-firmware/display/CYD_Speedo_Modern2.ino         ← Open this
-hardware/sender/wiring.md                        ← Read this
+firmware/sender-oil/sender_arduino.ino              ← Open this
+firmware/sender-fuel/fuel_sender.ino               ← Open this
+hardware/sender-oil/wiring.md                      ← Read this
+hardware/sender-fuel/wiring.md                     ← Read this
 ```
 
 **Everything is still the same code**, just better organized!
@@ -284,7 +299,7 @@ git push
 
 ### 1. Test ESP-NOW Communication
 - Upload `Get_MAC_Address.ino` to CYD
-- Update MAC address in `firmware/sender/sender_arduino.ino`
+- Update MAC address in `firmware/sender-oil/sender_arduino.ino`
 - Upload both firmwares
 - Verify communication works
 - See: `docs/setup/espnow-setup.md`

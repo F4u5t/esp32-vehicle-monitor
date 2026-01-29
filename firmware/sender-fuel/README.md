@@ -21,7 +21,7 @@ The fuel sender unit reads the fuel tank's variable resistance sensor and transm
 - 100nF ceramic capacitor (noise filtering)
 - SSD1306 OLED Display (128x64, I2C) - Optional for local display
 
-See [../../hardware/sender/fuel_sender/wiring.md](../../hardware/sender/fuel_sender/wiring.md) for complete wiring diagrams and resistor selection.
+See [../../hardware/sender-fuel/wiring.md](../../hardware/sender-fuel/wiring.md) for complete wiring diagrams and resistor selection.
 
 ## Features
 

@@ -262,8 +262,8 @@ XIAO C6 Pins → SSD1306 OLED (I2C)
 
 ## Reference Documents
 
-- [fuel_config.h](../firmware/sender/fuel_sender/fuel_config.h) — Pin assignments and timing
-- [fuel_sender.ino](../firmware/sender/fuel_sender/fuel_sender.ino) — Firmware main loop
-- [fuel_calibration.cpp](../firmware/sender/fuel_sender/fuel_calibration.cpp) — Calibration routines
-- [fuel_data_packet.h](../firmware/sender/fuel_sender/fuel_data_packet.h) — ESP-NOW packet format
+- [fuel_config.h](../sender-fuel/../fuel_config.h) — Pin assignments and timing
+- [fuel_sender.ino](../sender-fuel/../fuel_sender.ino) — Firmware main loop
+- [fuel_calibration.cpp](../sender-fuel/../fuel_calibration.cpp) — Calibration routines
+- [fuel_data_packet.h](../sender-fuel/../fuel_data_packet.h) — ESP-NOW packet format
 

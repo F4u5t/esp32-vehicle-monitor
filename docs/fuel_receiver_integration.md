@@ -434,7 +434,7 @@ void display_fuel_gauge_analog() {
 
 ## Reference
 
-- [fuel_data_packet.h](../../firmware/sender/fuel_sender/fuel_data_packet.h) — Packet structure definition
-- [fuel_sender.ino](../../firmware/sender/fuel_sender/fuel_sender.ino) — Sender firmware (for reference)
-- [fuel_config.h](../../firmware/sender/fuel_sender/fuel_config.h) — Timing and MAC address config
+- [fuel_data_packet.h](../../firmware/sender-fuel/fuel_data_packet.h) — Packet structure definition
+- [fuel_sender.ino](../../firmware/sender-fuel/fuel_sender.ino) — Sender firmware (for reference)
+- [fuel_config.h](../../firmware/sender-fuel/fuel_config.h) — Timing and MAC address config
 

@@ -19,23 +19,30 @@ SuperDashv7/
 
 ### 2. **Documentation Created**
 - ✅ Main README.md with project overview
-- ✅ firmware/sender/README.md - Sender details
+- ✅ firmware/sender-oil/README.md - Oil sender details
+- ✅ firmware/sender-fuel/README.md - Fuel sender details
+- ✅ firmware/sender-oil/SENDERS_OVERVIEW.md - Dual-sender architecture guide
 - ✅ firmware/display/README.md - Display details
 - ✅ laptop/README.md - GPS setup guide
 - ✅ hardware/bill-of-materials.md - Complete BOM
+- ✅ hardware/sender-oil/wiring.md - Oil sender wiring guide
+- ✅ hardware/sender-fuel/README.md - Fuel sender hardware guide
+- ✅ hardware/sender-fuel/wiring.md - Fuel sender wiring guide
 - ✅ docs/setup/getting-started.md - Quick start guide
 - ✅ docs/setup/espnow-setup.md - MAC address setup
-- ✅ MIGRATION_GUIDE.md - How to use new structure
-- ✅ GITHUB_UPLOAD_GUIDE.md - Step-by-step GitHub setup
+- ✅ docs/fuel_receiver_integration.md - Fuel sender CYD integration
+- ✅ docs/fuel_testing_calibration.md - Fuel sender testing procedures
 
 ### 3. **Firmware Organized**
-- ✅ Sender code copied to firmware/sender/
+- ✅ Oil sender code copied to firmware/sender-oil/
+- ✅ Fuel sender code copied to firmware/sender-fuel/
 - ✅ Display code copied to firmware/display/
 - ✅ All supporting files included
 - ✅ Detailed READMEs for each component
 
 ### 4. **Hardware Documentation**
-- ✅ Wiring diagrams organized in hardware/sender/
+- ✅ Oil sender wiring diagrams organized in hardware/sender-oil/
+- ✅ Fuel sender wiring diagrams organized in hardware/sender-fuel/
 - ✅ Complete bill of materials with pricing
 - ✅ Parts lists and supplier links
 
@@ -52,7 +59,7 @@ SuperDashv7/
 ### Immediate Next Steps:
 
 1. **Test the New Structure (5 minutes)**
-   - [ ] Open firmware/sender/sender_arduino.ino in Arduino IDE
+   - [ ] Open firmware/sender-oil/sender_arduino.ino in Arduino IDE
    - [ ] Open firmware/display/CYD_Speedo_Modern2.ino in Arduino IDE
    - [ ] Verify files open correctly
 
@@ -87,7 +94,7 @@ SuperDashv7/
 
 **Sender:**
 ```
-File → Open → firmware/sender/sender_arduino.ino
+File → Open → firmware/sender-oil/sender_arduino.ino
 ```
 
 **Display:**
@@ -107,10 +114,10 @@ File → Open → firmware/display/Get_MAC_Address.ino
 | Project Overview | README.md | What the project does |
 | Quick Start | docs/setup/getting-started.md | Complete setup guide |
 | ESP-NOW Setup | docs/setup/espnow-setup.md | MAC address config |
-| Sender Details | firmware/sender/README.md | Sender documentation |
+| Sender Details | firmware/sender-oil/README.md | Sender documentation |
 | Display Details | firmware/display/README.md | Display documentation |
 | GPS Setup | laptop/README.md | GPS configuration |
-| Wiring Guide | hardware/sender/wiring.md | Hardware connections |
+| Wiring Guide | hardware/sender-oil/wiring.md | Hardware connections |
 | Bill of Materials | hardware/bill-of-materials.md | Parts list |
 | Migration Guide | MIGRATION_GUIDE.md | Using new structure |
 | GitHub Guide | GITHUB_UPLOAD_GUIDE.md | Upload to GitHub |
@@ -121,9 +128,9 @@ File → Open → firmware/display/Get_MAC_Address.ino
 
 | Old Location | New Location |
 |--------------|--------------|
-| ESP_Oil_Data/sender_arduino/ | firmware/sender/ |
+| ESP_Oil_Data/sender_arduino/ | firmware/sender-oil/ |
 | ESP_CYD_1/ | firmware/display/ |
-| ESP_Oil_Data/docs/ | hardware/sender/ & docs/ |
+| ESP_Oil_Data/docs/ | hardware/sender-oil/ & docs/ |
 | (none) | laptop/ |
 
 **Note:** Old folders (ESP_Oil_Data, ESP_CYD_1) are still present for reference but will not be pushed to GitHub (they're in .gitignore).
@@ -135,7 +142,7 @@ File → Open → firmware/display/Get_MAC_Address.ino
 ### Before Using the System:
 
 1. **Update MAC Address (Required)**
-   - File: firmware/sender/sender_arduino.ino
+   - File: firmware/sender-oil/sender_arduino.ino
    - Line: ~49
    - Current: `uint8_t receiverMAC[] = {0x98, 0xA3, 0x16, 0x8E, 0x6A, 0xE4};`
    - Update: With your CYD's actual MAC address
@@ -221,7 +228,7 @@ The file "EspNOW MAC Addresss.txt" is NOT in .gitignore.
 ### If Something Doesn't Work:
 
 1. **Read the relevant README:**
-   - Sender issues → firmware/sender/README.md
+   - Sender issues → firmware/sender-oil/README.md
    - Display issues → firmware/display/README.md
    - ESP-NOW issues → docs/setup/espnow-setup.md
    - GPS issues → laptop/README.md

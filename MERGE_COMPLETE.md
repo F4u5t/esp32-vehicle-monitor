@@ -24,7 +24,7 @@ Your **1972 VW Superbeetle fuel sender project** has been **successfully integra
 ### Firmware (4 Files, 930 Lines of Code)
 
 ```
-firmware/sender/fuel_sender/
+firmware/sender-fuel/
 ├── fuel_sender.ino             [393 lines] Main sketch + ESP-NOW
 ├── fuel_calibration.cpp        [359 lines] Serial menu + Preferences
 ├── fuel_config.h               [89  lines] Configuration
@@ -44,11 +44,21 @@ firmware/sender/fuel_sender/
 ### Documentation (5 Files, 1,871 Lines)
 
 ```
-firmware/sender/
+firmware/sender-oil/
 ├── fuel_sender/README.md       [364 lines] Firmware guide
 ├── SENDERS_OVERVIEW.md         (new)       Dual-sender architecture
 
-hardware/sender/fuel_sender/
+firmware/sender-fuel/
+├── README.md                   [364 lines] Firmware guide
+├── fuel_sender.ino             [393 lines] Main sketch
+├── fuel_calibration.cpp        [359 lines] Serial menu
+├── fuel_config.h               [89 lines]  Configuration
+└── fuel_data_packet.h          [89 lines]  Packet structure
+
+hardware/sender-oil/
+├── wiring.md                   [269 lines] Oil sender circuit
+
+hardware/sender-fuel/
 ├── README.md                   [316 lines] Hardware assembly guide
 └── wiring.md                   [269 lines] Circuit diagrams
 
@@ -77,28 +87,30 @@ root/
 ### Before (Oil Sender Only)
 ```
 esp32-vehicle-monitor/
-├── firmware/sender/          ← Oil sender only
-├── hardware/sender/          ← Oil sender only
+├── firmware/sender-oil/          ← Oil sender only
+├── hardware/sender-oil/          ← Oil sender only
 └── docs/                     ← Communication protocol
 ```
 
 ### After (Dual Senders - Modular)
 ```
 esp32-vehicle-monitor/
-├── firmware/sender/
+├── firmware/sender-oil/
 │   ├── [oil sender files]         (unchanged)
 │   ├── SENDERS_OVERVIEW.md        ✅ NEW - Architecture guide
-│   └── fuel_sender/               ✅ NEW FOLDER
-│       ├── fuel_sender.ino        (393 lines)
-│       ├── fuel_calibration.cpp   (359 lines)
-│       ├── fuel_config.h          (89 lines)
-│       ├── fuel_data_packet.h     (89 lines)
-│       └── README.md              (364 lines)
 │
-├── hardware/sender/
+├── firmware/sender-fuel/          ✅ NEW FOLDER
+│   ├── fuel_sender.ino            (393 lines)
+│   ├── fuel_calibration.cpp       (359 lines)
+│   ├── fuel_config.h              (89 lines)
+│   ├── fuel_data_packet.h         (89 lines)
+│   └── README.md                  (364 lines)
+│
+├── hardware/sender-oil/
 │   ├── [oil sender files]         (unchanged)
-│   └── fuel_sender/               ✅ NEW FOLDER
-│       ├── README.md              (316 lines)
+│
+├── hardware/sender-fuel/          ✅ NEW FOLDER
+│   ├── README.md                  (316 lines)
 │       └── wiring.md              (269 lines)
 │
 └── docs/
@@ -160,14 +172,14 @@ esp32-vehicle-monitor/
 # 1. Open Arduino IDE
 # 2. Select Board: "Seeeduino XIAO ESP32C6"
 # 3. Select Port: (your USB port)
-# 4. Open: firmware/sender/fuel_sender/fuel_sender.ino
+# 4. Open: firmware/sender-fuel/fuel_sender.ino
 # 5. Click Upload
 # 6. Done!
 ```
 
 ### Ready to Build
 ```bash
-# 1. Follow hardware/sender/fuel_sender/wiring.md
+# 1. Follow hardware/sender-fuel/wiring.md
 # 2. Gather components (100Ω resistor, 100nF cap, wires)
 # 3. Assemble voltage divider circuit
 # 4. Verify with multimeter
@@ -251,18 +263,18 @@ esp32-vehicle-monitor/
 
 ### Firmware Files (Ready to Flash)
 ```
-✓ firmware/sender/fuel_sender/fuel_sender.ino (393 lines)
-✓ firmware/sender/fuel_sender/fuel_config.h (89 lines)
-✓ firmware/sender/fuel_sender/fuel_data_packet.h (89 lines)
-✓ firmware/sender/fuel_sender/fuel_calibration.cpp (359 lines)
+✓ firmware/sender-fuel/fuel_sender.ino (393 lines)
+✓ firmware/sender-fuel/fuel_config.h (89 lines)
+✓ firmware/sender-fuel/fuel_data_packet.h (89 lines)
+✓ firmware/sender-fuel/fuel_calibration.cpp (359 lines)
 ```
 
 ### Documentation Files (Ready to Read)
 ```
-✓ firmware/sender/fuel_sender/README.md (364 lines)
-✓ firmware/sender/SENDERS_OVERVIEW.md (new - architecture guide)
-✓ hardware/sender/fuel_sender/README.md (316 lines)
-✓ hardware/sender/fuel_sender/wiring.md (269 lines)
+✓ firmware/sender-fuel/README.md (364 lines)
+✓ firmware/sender-oil/SENDERS_OVERVIEW.md (new - architecture guide)
+✓ hardware/sender-fuel/README.md (316 lines)
+✓ hardware/sender-fuel/wiring.md (269 lines)
 ✓ docs/fuel_receiver_integration.md (440 lines)
 ✓ docs/fuel_testing_calibration.md (482 lines)
 ✓ FUEL_SENDER_INTEGRATION.md (this file)
@@ -311,9 +323,9 @@ Total:           98 KB
 
 | Purpose | File |
 |---------|------|
-| **Start Here** | `firmware/sender/fuel_sender/README.md` |
-| **Architecture Overview** | `firmware/sender/SENDERS_OVERVIEW.md` |
-| **Hardware Build** | `hardware/sender/fuel_sender/wiring.md` |
+| **Start Here** | `firmware/sender-fuel/README.md` |
+| **Architecture Overview** | `firmware/sender-oil/SENDERS_OVERVIEW.md` |
+| **Hardware Build** | `hardware/sender-fuel/wiring.md` |
 | **Display Integration** | `docs/fuel_receiver_integration.md` |
 | **Testing Guide** | `docs/fuel_testing_calibration.md` |
 | **This Summary** | `FUEL_SENDER_INTEGRATION.md` |
@@ -330,9 +342,9 @@ cd /home/matt/esp32-vehicle-monitor
 git status
 
 # Add all new files
-git add firmware/sender/fuel_sender/
-git add firmware/sender/SENDERS_OVERVIEW.md
-git add hardware/sender/fuel_sender/
+git add firmware/sender-fuel/
+git add firmware/sender-oil/SENDERS_OVERVIEW.md
+git add hardware/sender-fuel/
 git add docs/fuel_receiver_integration.md
 git add docs/fuel_testing_calibration.md
 git add FUEL_SENDER_INTEGRATION.md

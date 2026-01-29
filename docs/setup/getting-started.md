@@ -36,7 +36,7 @@ ESP-NOW communication requires MAC addresses to be configured.
 
 2. **Update Sender Code:**
    ```
-   - Open: firmware/sender/sender_arduino.ino
+   - Open: firmware/sender-oil/sender_arduino.ino
    - Find line ~49: uint8_t receiverMAC[] = {...}
    - Update with CYD's MAC address
    - Convert MAC format: 98:A3:16:8E:6A:E4 → {0x98, 0xA3, 0x16, 0x8E, 0x6A, 0xE4}
@@ -86,7 +86,7 @@ The CYD display requires TFT_eSPI configuration:
 
 ```
 1. Connect ESP32C6 via USB-C
-2. Open: firmware/sender/sender_arduino.ino
+2. Open: firmware/sender-oil/sender_arduino.ino
 3. Select Board: "XIAO_ESP32C6"
 4. Select correct Port
 5. Click Upload (may need to hold BOOT button)

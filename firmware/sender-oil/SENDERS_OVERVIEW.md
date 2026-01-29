@@ -15,8 +15,8 @@ This folder contains firmware for two independent sender devices that transmit d
 | **Data Types** | Temperature (°C), Pressure (PSI) | Fuel percentage (0-100%) |
 | **Protocol** | v3 (24 bytes) | v1 (14 bytes) |
 | **Update Rate** | 1 Hz | 1 Hz |
-| **Firmware** | [README](README.md) | [README](fuel_sender/README.md) |
-| **Hardware Guide** | [wiring.md](../../hardware/sender/wiring.md) | [wiring.md](fuel_sender/wiring.md) |
+| **Firmware** | [README](README.md) | [README](../sender-fuel/README.md) |
+| **Hardware Guide** | [wiring.md](../../hardware/sender-oil/wiring.md) | [wiring.md](../../hardware/sender-fuel/wiring.md) |
 | **Calibration** | Via serial menu (pressure offset) | Via serial menu (two-point) |
 | **Local Display** | SSD1306 OLED | Optional SSD1306 OLED |
 
@@ -64,8 +64,8 @@ You already have the original firmware:
 ### If You Want to Add Fuel Monitoring
 
 New option: Fuel sender for tank level:
-- Use [fuel_sender/fuel_sender.ino](fuel_sender/fuel_sender.ino)
-- Follow [fuel_sender/README.md](fuel_sender/README.md)
+- Use [../sender-fuel/fuel_sender.ino](../sender-fuel/fuel_sender.ino)
+- Follow [../sender-fuel/README.md](../sender-fuel/README.md)
 - Integrate display changes from [../../docs/fuel_receiver_integration.md](../../docs/fuel_receiver_integration.md)
 
 ### If You Have Both (Recommended Configuration)
@@ -94,30 +94,38 @@ New option: Fuel sender for tank level:
 ## File Organization
 
 ```
-firmware/sender/
-├── README.md                     ← You are here
-├── sender.ino                    ← Oil sender (main sketch)
-├── sender_arduino.ino            ← Oil sender (alternate)
-├── config.h                      ← Oil sender config
-├── data_packet.h                 ← Oil packet structure (v3)
-├── console_menu.cpp/h            ← Oil calibration menu
-├── settings.cpp/h                ← Oil Preferences storage
-├── ads1115_config.h              ← Oil pressure ADC config
+firmware/
+├── sender-oil/                   ← Oil sender (you are here)
+│   ├── README.md                 ← Detailed oil sender guide
+│   ├── SENDERS_OVERVIEW.md       ← This file
+│   ├── sender.ino                ← Oil sender (main sketch)
+│   ├── sender_arduino.ino        ← Oil sender (alternate)
+│   ├── config.h                  ← Oil sender config
+│   ├── data_packet.h             ← Oil packet structure (v3)
+│   ├── console_menu.cpp/h        ← Oil calibration menu
+│   ├── settings.cpp/h            ← Oil Preferences storage
+│   └── ads1115_config.h          ← Oil pressure ADC config
 │
-└── fuel_sender/                  ← NEW: Fuel sender
-    ├── README.md                 ← Fuel sender guide
-    ├── fuel_sender.ino           ← Fuel sender (main sketch)
-    ├── fuel_config.h             ← Fuel sender config
-    ├── fuel_data_packet.h        ← Fuel packet structure (v1)
-    └── fuel_calibration.cpp      ← Fuel calibration menu
+├── sender-fuel/                  ← Fuel sender
+│   ├── README.md                 ← Detailed fuel sender guide
+│   ├── fuel_sender.ino           ← Fuel sender (main sketch)
+│   ├── fuel_config.h             ← Fuel sender config
+│   ├── fuel_data_packet.h        ← Fuel packet structure (v1)
+│   └── fuel_calibration.cpp      ← Fuel calibration menu
+│
+└── display/                      ← Display receiver
+    ├── README.md                 ← Display firmware guide
+    ├── CYD_Speedo_Modern2.ino    ← Main display sketch
+    └── Get_MAC_Address.ino       ← MAC address utility
 ```
 
 ## Documentation Map
 
 | Purpose | Oil Sender | Fuel Sender |
 |---------|-----------|-------------|
-| **Firmware** | [README.md](README.md) | [fuel_sender/README.md](fuel_sender/README.md) |
-| **Hardware Wiring** | [../../hardware/sender/wiring.md](../../hardware/sender/wiring.md) | [../../hardware/sender/fuel_sender/wiring.md](fuel_sender/wiring.md) |
+| **Firmware** | [README.md](README.md) | [../sender-fuel/README.md](../sender-fuel/README.md) |
+| **Hardware Wiring** | [../../hardware/sender-oil/wiring.md](../../hardware/sender-oil/wiring.md) | [../../hardware/sender-fuel/wiring.md](../../hardware/sender-fuel/wiring.md) |
+| **Hardware Assembly** | (wiring.md above) | [../../hardware/sender-fuel/README.md](../../hardware/sender-fuel/README.md) |
 | **Display Integration** | (see display firmware) | [../../docs/fuel_receiver_integration.md](../../docs/fuel_receiver_integration.md) |
 | **Testing & Calibration** | [../../docs/setup/espnow-setup.md](../../docs/setup/espnow-setup.md) | [../../docs/fuel_testing_calibration.md](../../docs/fuel_testing_calibration.md) |
 | **Packet Format** | [../../docs/communication-protocol.md](../../docs/communication-protocol.md) | [../../docs/communication-protocol.md](../../docs/communication-protocol.md) |

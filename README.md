@@ -226,7 +226,7 @@ See [hardware/bill-of-materials.md](hardware/bill-of-materials.md) for complete 
 
 ```cpp
 
-// Update firmware/sender/sender_arduino.ino with CYD MAC address
+// Update firmware/sender-oil/sender_arduino.ino with CYD MAC address
 
 uint8_t receiverMAC[] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
 
@@ -240,7 +240,9 @@ uint8_t receiverMAC[] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
 
 # Upload firmware to both devices using Arduino IDE
 
-# Sender: firmware/sender/sender_arduino.ino
+# Oil Sender: firmware/sender-oil/sender_arduino.ino
+
+# Fuel Sender: firmware/sender-fuel/fuel_sender.ino
 
 # Display: firmware/display/CYD_Speedo_Modern2.ino
 
@@ -386,7 +388,9 @@ vehicle-monitor/
 
 - **[Communication Protocol](docs/communication-protocol.md)** - ESP-NOW data structure
 
-- **[Hardware Wiring](hardware/sender/wiring.md)** - Complete wiring diagrams
+- **[Oil Sender Wiring](hardware/sender-oil/wiring.md)** - Oil sender wiring diagrams
+
+- **[Fuel Sender Wiring](hardware/sender-fuel/wiring.md)** - Fuel sender wiring diagrams
 
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 

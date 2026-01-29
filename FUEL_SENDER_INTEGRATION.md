@@ -14,24 +14,28 @@ Your fuel sender project has been successfully **merged into the esp32-vehicle-m
 ```
 esp32-vehicle-monitor/
 │
-├── firmware/sender/
-│   ├── README.md                    (Oil sender guide)
-│   ├── SENDERS_OVERVIEW.md          ✅ NEW - Dual-sender architecture guide
-│   ├── sender.ino, config.h, etc.   (Existing oil sender)
+├── firmware/
+│   ├── sender-oil/
+│   │   ├── README.md                (Oil sender guide)
+│   │   ├── SENDERS_OVERVIEW.md      (Dual-sender architecture guide)
+│   │   ├── sender.ino, config.h, etc. (Oil sender firmware)
 │   │
-│   └── fuel_sender/                 ✅ NEW FOLDER
-│       ├── README.md                (Fuel sender guide - 12KB)
-│       ├── fuel_sender.ino          (Main sketch - 12KB)
-│       ├── fuel_config.h            (Configuration - 4KB)
-│       ├── fuel_data_packet.h       (Packet structure - 3.5KB)
-│       └── fuel_calibration.cpp     (Calibration menu - 11KB)
+│   ├── sender-fuel/                 ✅ NEW FOLDER
+│   │   ├── README.md                (Fuel sender guide - 12KB)
+│   │   ├── fuel_sender.ino          (Main sketch - 12KB)
+│   │   ├── fuel_config.h            (Configuration - 4KB)
+│   │   ├── fuel_data_packet.h       (Packet structure - 3.5KB)
+│   │   └── fuel_calibration.cpp     (Calibration menu - 11KB)
+│   │
+│   └── display/
 │
-├── hardware/sender/
-│   ├── wiring.md                    (Oil sender wiring)
+├── hardware/
+│   ├── sender-oil/
+│   │   └── wiring.md                (Oil sender wiring)
 │   │
-│   └── fuel_sender/                 ✅ NEW FOLDER
-│       ├── README.md                (Hardware guide - 10KB)
-│       └── wiring.md                (Voltage divider circuit - 8.5KB)
+│   ├── sender-fuel/                 ✅ NEW FOLDER
+│   │   ├── README.md                (Hardware guide - 10KB)
+│   │   └── wiring.md                (Voltage divider circuit - 8.5KB)
 │
 └── docs/
     ├── communication-protocol.md    (Protocol specs)
@@ -45,18 +49,18 @@ esp32-vehicle-monitor/
 ### Firmware Files (4)
 | File | Size | Purpose |
 |------|------|---------|
-| `firmware/sender/fuel_sender/fuel_sender.ino` | 12.4 KB | Main sketch - ADC, ESP-NOW, serial menu |
-| `firmware/sender/fuel_sender/fuel_config.h` | 3.9 KB | Pin definitions, timing, thresholds |
-| `firmware/sender/fuel_sender/fuel_data_packet.h` | 3.5 KB | Packet structure (v1), checksum helpers |
-| `firmware/sender/fuel_sender/fuel_calibration.cpp` | 10.9 KB | Interactive calibration menu, Preferences |
+| `firmware/sender-fuel/fuel_sender.ino` | 12.4 KB | Main sketch - ADC, ESP-NOW, serial menu |
+| `firmware/sender-fuel/fuel_config.h` | 3.9 KB | Pin definitions, timing, thresholds |
+| `firmware/sender-fuel/fuel_data_packet.h` | 3.5 KB | Packet structure (v1), checksum helpers |
+| `firmware/sender-fuel/fuel_calibration.cpp` | 10.9 KB | Interactive calibration menu, Preferences |
 
 ### Documentation Files (5)
 | File | Size | Purpose |
 |------|------|---------|
-| `firmware/sender/SENDERS_OVERVIEW.md` | 11 KB | Dual-sender architecture guide |
-| `firmware/sender/fuel_sender/README.md` | 12.2 KB | Fuel sender firmware documentation |
-| `hardware/sender/fuel_sender/README.md` | 9.7 KB | Hardware assembly & integration guide |
-| `hardware/sender/fuel_sender/wiring.md` | 8.5 KB | Voltage divider circuit, troubleshooting |
+| `firmware/sender-oil/SENDERS_OVERVIEW.md` | 11 KB | Dual-sender architecture guide |
+| `firmware/sender-fuel/README.md` | 12.2 KB | Fuel sender firmware documentation |
+| `hardware/sender-fuel/README.md` | 9.7 KB | Hardware assembly & integration guide |
+| `hardware/sender-fuel/wiring.md` | 8.5 KB | Voltage divider circuit, troubleshooting |
 | `docs/fuel_receiver_integration.md` | 13.7 KB | CYD display firmware modifications |
 | `docs/fuel_testing_calibration.md` | 14.4 KB | Test procedures, calibration workflows |
 
@@ -90,7 +94,7 @@ esp32-vehicle-monitor/
 - Dual-sender architecture overview
 
 ### ✅ Organization
-- Parallel folder structure: `fuel_sender/` at same level as oil sender
+- Parallel folder structure: `sender-fuel/` at same level as sender-oil
 - Cross-referenced documentation
 - Consistent file naming (fuel_* prefix for fuel-specific files)
 - Integration guide explaining how both senders work together
@@ -125,9 +129,9 @@ CYD Display ← Oil Sender (XIAO ESP32C6)
 cd /home/matt/esp32-vehicle-monitor
 
 # Stage new files
-git add firmware/sender/fuel_sender/
-git add firmware/sender/SENDERS_OVERVIEW.md
-git add hardware/sender/fuel_sender/
+git add firmware/sender-fuel/
+git add firmware/sender-oil/SENDERS_OVERVIEW.md
+git add hardware/sender-fuel/
 git add docs/fuel_receiver_integration.md
 git add docs/fuel_testing_calibration.md
 
@@ -159,7 +163,7 @@ Add reference to fuel sender in repository README.md:
 - **Oil Sender** - Engine temperature & pressure monitoring
 - **Fuel Sender** - Fuel tank level monitoring ⭐ NEW
 
-See [firmware/sender/SENDERS_OVERVIEW.md](firmware/sender/SENDERS_OVERVIEW.md) for architectural overview and feature comparison.
+See [firmware/sender-oil/SENDERS_OVERVIEW.md](firmware/sender-oil/SENDERS_OVERVIEW.md) for architectural overview and feature comparison.
 ```
 
 ### 3. Verify CYD Integration
@@ -186,12 +190,12 @@ git push origin v2.0-fuel-monitor
 
 | Need to... | See File |
 |-----------|----------|
-| **Understand dual-sender architecture** | [firmware/sender/SENDERS_OVERVIEW.md](firmware/sender/SENDERS_OVERVIEW.md) |
-| **Flash fuel sender firmware** | [firmware/sender/fuel_sender/README.md](firmware/sender/fuel_sender/README.md) |
-| **Build hardware circuit** | [hardware/sender/fuel_sender/wiring.md](fuel_sender/wiring.md) |
+| **Understand dual-sender architecture** | [firmware/sender-oil/SENDERS_OVERVIEW.md](firmware/sender-oil/SENDERS_OVERVIEW.md) |
+| **Flash fuel sender firmware** | [firmware/sender-fuel/README.md](firmware/sender-fuel/README.md) |
+| **Build hardware circuit** | [hardware/sender-fuel/wiring.md](hardware/sender-fuel/wiring.md) |
 | **Calibrate fuel sender** | [docs/fuel_testing_calibration.md](fuel_testing_calibration.md) |
 | **Modify CYD display** | [docs/fuel_receiver_integration.md](fuel_receiver_integration.md) |
-| **Compare oil vs fuel** | [firmware/sender/SENDERS_OVERVIEW.md](firmware/sender/SENDERS_OVERVIEW.md#sender-comparison) |
+| **Compare oil vs fuel** | [firmware/sender-oil/SENDERS_OVERVIEW.md](firmware/sender-oil/SENDERS_OVERVIEW.md#sender-comparison) |
 
 ## 🔗 File Cross-References
 

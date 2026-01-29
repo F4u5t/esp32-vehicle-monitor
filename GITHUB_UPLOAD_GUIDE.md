@@ -82,7 +82,8 @@ Changes to be committed:
   new file:   .gitignore
   new file:   LICENSE
   new file:   README.md
-  new file:   firmware/sender/...
+  new file:   firmware/sender-oil/...
+  new file:   firmware/sender-fuel/...
   ...
 ```
 
@@ -243,7 +244,8 @@ After initial upload, when you make changes:
 git status
 
 # Add specific file
-git add firmware/sender/sender_arduino.ino
+git add firmware/sender-oil/sender_arduino.ino
+git add firmware/sender-fuel/fuel_sender.ino
 
 # Or add all changes
 git add .

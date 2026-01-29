@@ -476,7 +476,7 @@ _________________________________________
 
 ## Reference Documents
 
-- [fuel_config.h](../firmware/sender/fuel_sender/fuel_config.h) — Pin assignments & timing constants
+- [fuel_config.h](../firmware/sender-fuel/fuel_config.h) — Pin assignments & timing constants
 - [fuel_sender_wiring.md](../hardware/sender/fuel_sender_wiring.md) — Circuit diagram & resistor values
 - [cyd_receiver_integration.md](cyd_receiver_integration.md) — Display firmware integration guide
 
